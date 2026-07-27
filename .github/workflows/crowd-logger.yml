@@ -1,0 +1,75 @@
+name: crowd-logger
+
+# Two schedules, 30 minutes apart. GitHub delays scheduled workflows under
+# platform load and sometimes drops them entirely, so the :30 run is
+# redundancy, not duplication. Both write to distinct HH-stamped paths.
+on:
+  schedule:
+    - cron: "0 * * * *"
+    - cron: "30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crowd-logger
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout data branch
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          fetch-depth: 1
+
+      - name: Restore collector from main
+        run: |
+          git fetch origin main --depth=1
+          git checkout origin/main -- collectors/ pyproject.toml
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install --quiet requests pandas pyarrow
+
+      - name: Capture snapshot
+        run: python -m collectors.crowd --out data/raw/crowd
+
+      - name: Commit and push
+        run: |
+          git config user.name  "myriad-bot"
+          git config user.email "actions@github.com"
+
+          # Drop the collector code again so the data branch stays data-only
+          git reset -- collectors/ pyproject.toml
+          rm -rf collectors pyproject.toml
+
+          git add data/raw/crowd
+          if git diff --cached --quiet; then
+            echo "no new snapshot to commit"
+            exit 0
+          fi
+
+          git commit -m "crowd snapshot $(date -u +'%Y-%m-%dT%H:%MZ')"
+
+          # Another run may have pushed while this one was working.
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:data; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected, rebasing (attempt $attempt)"
+            git pull --rebase origin data || true
+            sleep $((attempt * 5))
+          done
+
+          echo "::error::failed to push snapshot after 5 attempts"
+          exit 1

@@ -1,0 +1,13 @@
+[project]
+name = "myriad"
+version = "0.1.0"
+description = "Premier League season simulator, built in public"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+    "pandas>=2.2",
+    "pyarrow>=16.0",
+    "duckdb>=1.0",
+    "scipy>=1.13",
+    "numpy>=1.26",
+]

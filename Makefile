@@ -1,4 +1,4 @@
-.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat fixtures load audit fit-dc
+.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat fixtures load audit fit-dc score
 
 ingest:
 	uv run python -m loaders.crowd_to_duck
@@ -29,6 +29,9 @@ fit-dc:
 
 backtest:
 	uv run python -m backtest.walkforward --start 2024-08-15 --end 2025-05-31 --max-matchdays 5
+
+score:
+	uv run python scripts/score_backtest.py
 
 simulate:
 	@echo "not yet implemented (Day 20)"

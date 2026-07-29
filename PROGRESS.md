@@ -4,48 +4,49 @@ Living notes. Updated as work happens.
 
 ---
 
-## Day 11 — Thursday 6 August
+## Day 12 — Friday 7 August
 
-**Goal:** walk-forward backtest harness with hard leakage assertions.
+**Goal:** evaluation metrics + benchmarks.
 
 | Step | What | State |
 |------|------|-------|
-| 1 | `backtest/walkforward.py` | Done |
-| 2 | `backtest/leakage.py` (assertions, not comments) | Done |
-| 3 | Smoke-run (5 matchdays, 2024-08) | Done — 17 preds written |
+| 1 | `eval/metrics.py` (RPS, log loss, Brier, calibration, bootstrap) | Done |
+| 2 | `eval/benchmarks.py` (de-vig + naive baselines) | Done |
+| 3 | `scripts/score_backtest.py` smoke | Done |
 
-### Leakage checklist
+### Smoke scores (34 backtest preds, Aug 2024 only — not meaningful yet)
 
-| Guard | Status |
-|-------|--------|
-| No training match on/after prediction timestamp | Asserts (verified fires) |
-| Closing odds never a feature | Asserts (verified fires) |
-| xG not later revisions | Asserts (blocks `*revis*xg*`) |
-| No end-of-season aggregates | Asserts (forbidden names) |
-| Observed weather blocked | Asserts (forbidden names) |
-| LLM inputs timestamped | Asserts when records passed |
+| Source | RPS |
+|--------|----:|
+| Model (`dc-v0.1`) | 0.163 |
+| Closing de-vig | 0.165 |
+| Opening de-vig | 0.160 |
+| Base rates (in-sample) | 0.246 |
+| Home-always | 0.471 |
 
-### Smoke results
-
-- 5 matchdays, 17 predictions, `model_variant='backtest'`, append-only
-- Mean p_home ≈ 0.46
-- Warm-start across matchdays for faster refits
+Tiny sample — Day 13 full backtest is the real test. Ballpark for a competent DC is RPS ~0.19–0.21 over many seasons.
 
 ```powershell
-.\tasks.ps1 backtest
-# full season later:
-# uv run python -m backtest.walkforward --start 2015-08-01 --end 2026-05-31
+.\tasks.ps1 score
 ```
 
-### Schedule
+Shin de-vig noted as a later refinement (proportional used for now).
 
-PRD Day 11 = 6 Aug; ran 29 Jul — **ahead of schedule**. Audit still PASSED.
+### Schedule / diligence
+
+Day 8 audit still **PASSED**. Ahead of PRD calendar (Day 12 = 7 Aug).
+
+---
+
+## Day 11 — Thursday 6 August
+
+Walk-forward harness + leakage assertions. Smoke: 5 matchdays.
 
 ---
 
 ## Days 9–10
 
-Dixon-Coles (γ=1.20 / γ_empty=1.03) + score matrix.
+Dixon-Coles + score matrix.
 
 ---
 

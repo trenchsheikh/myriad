@@ -48,6 +48,9 @@ switch ($Task.ToLower()) {
         # Smoke window by default; full season: uv run python -m backtest.walkforward --start 2015-08-01 --end 2026-05-31
         Invoke-Uv run python -m backtest.walkforward --start 2024-08-15 --end 2025-05-31 --max-matchdays 5
     }
+    "score" {
+        Invoke-Uv run python scripts/score_backtest.py
+    }
     "simulate" {
         Write-Host "not yet implemented (Day 20)"
     }
@@ -68,6 +71,7 @@ Myriad tasks (Windows):
   .\tasks.ps1 audit         Run Day 8 data audit checks
   .\tasks.ps1 fit-dc        Fit Dixon-Coles baseline (Day 9)
   .\tasks.ps1 backtest      Walk-forward smoke (5 matchdays)
+  .\tasks.ps1 score         Score predictions vs results + benchmarks
 
 Or call uv directly, e.g.:
   uv run python -m collectors.understat

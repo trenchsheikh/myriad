@@ -17,7 +17,7 @@ scored — built live, in the open.
 
 ## Status
 
-Day 11. Walk-forward harness + leakage guards. See `PROGRESS.md`.
+Day 12. Eval metrics + benchmarks. See `PROGRESS.md`.
 
 
 ## Why a cron job before a model
@@ -53,8 +53,10 @@ uv run python scripts/check_gaps.py
 | Understat xG | `.\tasks.ps1 understat` | `make understat` |
 | Fixtures | `.\tasks.ps1 fixtures` | `make fixtures` |
 | Gap check | `.\tasks.ps1 check-gaps` | `make check-gaps` |
-| Full load | `.\tasks.ps1 load` | `make load` |
 | Data audit | `.\tasks.ps1 audit` | `make audit` |
+| Full load | `.\tasks.ps1 load` | `make load` |
+| Backtest smoke | `.\tasks.ps1 backtest` | `make backtest` |
+| Score preds | `.\tasks.ps1 score` | `make score` |
 
 `make` is not installed on Windows by default — use `.\tasks.ps1` or the `uv run` commands above.
 

@@ -97,6 +97,8 @@ class DixonColes:
     def __init__(self, xi: float = DEFAULT_XI) -> None:
         self.xi = float(xi)
         self.result_: DixonColesResult | None = None
+        self._last_theta: np.ndarray | None = None
+        self._last_teams: list[str] | None = None
 
     def _prepare(self, matches: pd.DataFrame, as_of: pd.Timestamp | None) -> pd.DataFrame:
         df = matches.copy()
@@ -211,11 +213,21 @@ class DixonColes:
         x0[n_att_free + n_def + 1] = np.log(1.05)
         x0[n_att_free + n_def + 2] = -0.05
 
+        # Warm-start from previous fit when the team set is identical
+        if (
+            self._last_theta is not None
+            and self._last_teams == teams
+            and len(self._last_theta) == len(x0)
+        ):
+            x0 = self._last_theta.copy()
+
         log.info(
             "fitting Dixon-Coles: teams=%d matches=%d xi=%.5f (half-life~%.0fd)",
             n, len(df), self.xi, np.log(2) / self.xi,
         )
-        opt = minimize(nll, x0, method="L-BFGS-B", options={"maxiter": 500, "ftol": 1e-8})
+        opt = minimize(nll, x0, method="L-BFGS-B", options={"maxiter": 800, "ftol": 1e-9})
+        self._last_theta = opt.x.copy()
+        self._last_teams = list(teams)
 
         attack, defence, gamma, gamma_e, rho = unpack(opt.x)
         result = DixonColesResult(

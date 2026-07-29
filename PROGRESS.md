@@ -4,58 +4,57 @@ Living notes. Updated as work happens.
 
 ---
 
-## Day 10 — Wednesday 5 August
+## Day 11 — Thursday 6 August
 
-**Goal:** score matrix → 1X2 / BTTS / Over 2.5 probabilities.
-
-| Step | What | State |
-|------|------|-------|
-| 1 | `models/score_matrix.py` | Done |
-| 2 | Assert 1X2 sums to 1 within 1e-9 | Done |
-
-Sample (fitted model): Liverpool vs Man United → p_home≈0.45, p_draw≈0.25, p_away≈0.31.
-
----
-
-## Day 9 — Tuesday 4 August
-
-**Goal:** Dixon-Coles baseline with empty-stadium home-advantage correction.
+**Goal:** walk-forward backtest harness with hard leakage assertions.
 
 | Step | What | State |
 |------|------|-------|
-| 1 | `crowd_present` on matches | Done (False for 2020-06-17 → 2021-05-16) |
-| 2 | `models/dixon_coles.py` | Done (vectorised NLL, L-BFGS-B) |
-| 3 | Smoke-fit | Done |
+| 1 | `backtest/walkforward.py` | Done |
+| 2 | `backtest/leakage.py` (assertions, not comments) | Done |
+| 3 | Smoke-run (5 matchdays, 2024-08) | Done — 17 preds written |
 
-### Fit sanity check (2014-15 → 2025-26, 4,560 matches)
+### Leakage checklist
 
-| Param | Value | Notes |
-|-------|-------|-------|
-| γ (crowd) | **1.203** | normal home advantage |
-| γ_empty | **1.029** | collapsed — COVID correction working |
-| ρ | -0.119 | low-score dependence |
-| ξ | ln2/182.5 | ~6-month half-life |
+| Guard | Status |
+|-------|--------|
+| No training match on/after prediction timestamp | Asserts (verified fires) |
+| Closing odds never a feature | Asserts (verified fires) |
+| xG not later revisions | Asserts (blocks `*revis*xg*`) |
+| No end-of-season aggregates | Asserts (forbidden names) |
+| Observed weather blocked | Asserts (forbidden names) |
+| LLM inputs timestamped | Asserts when records passed |
 
-Top strengths: Arsenal, Man City, Liverpool. Empty-stadium γ near 1.0 confirms the PRD warning.
+### Smoke results
+
+- 5 matchdays, 17 predictions, `model_variant='backtest'`, append-only
+- Mean p_home ≈ 0.46
+- Warm-start across matchdays for faster refits
 
 ```powershell
-.\tasks.ps1 fit-dc
+.\tasks.ps1 backtest
+# full season later:
+# uv run python -m backtest.walkforward --start 2015-08-01 --end 2026-05-31
 ```
+
+### Schedule
+
+PRD Day 11 = 6 Aug; ran 29 Jul — **ahead of schedule**. Audit still PASSED.
 
 ---
 
-## Day 8 — Monday 3 August
+## Days 9–10
 
-Data audit **PASSED**. M1 complete.
-16 seasons, 12 with xG (100%), 0 null teams, 0 duplicate match_ids.
+Dixon-Coles (γ=1.20 / γ_empty=1.03) + score matrix.
 
-```powershell
-.\tasks.ps1 load
-.\tasks.ps1 audit
-```
+---
+
+## Day 8
+
+Data audit PASSED. M1 complete.
 
 ---
 
 ## Days 1–7
 
-Logger → DuckDB/gaps → gap-alert → results → team IDs → Understat xG → stadiums/fixtures.
+Logger → DuckDB → results → teams → xG → stadiums/fixtures.

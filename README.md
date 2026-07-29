@@ -17,7 +17,7 @@ scored — built live, in the open.
 
 ## Status
 
-Day 10. Dixon-Coles + score matrix. See `PROGRESS.md`.
+Day 11. Walk-forward harness + leakage guards. See `PROGRESS.md`.
 
 
 ## Why a cron job before a model

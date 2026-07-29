@@ -28,7 +28,7 @@ fit-dc:
 	uv run python scripts/fit_dixon_coles.py
 
 backtest:
-	@echo "not yet implemented (Day 11)"
+	uv run python -m backtest.walkforward --start 2024-08-15 --end 2025-05-31 --max-matchdays 5
 
 simulate:
 	@echo "not yet implemented (Day 20)"

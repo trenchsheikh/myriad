@@ -17,7 +17,7 @@ scored — built live, in the open.
 
 ## Status
 
-Day 6. Understat xG joined (100%). See `PROGRESS.md`.
+Day 7. Stadiums + 2026-27 fixtures. See `PROGRESS.md`.
 
 ## Why a cron job before a model
 

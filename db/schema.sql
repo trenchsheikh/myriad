@@ -86,9 +86,24 @@ CREATE TABLE IF NOT EXISTS team_aliases (
   team_id VARCHAR
 );
 
+-- 2026-27 (and future) FPL fixture list, canonical team ids.
+CREATE TABLE IF NOT EXISTS fixtures (
+  fixture_id    INTEGER,
+  season        VARCHAR,
+  gameweek      INTEGER,
+  kickoff_utc   TIMESTAMP,
+  home_team_id  VARCHAR,
+  away_team_id  VARCHAR,
+  finished      BOOLEAN,
+  fpl_code      INTEGER
+);
+
 -- Speeds up gap checks and "already loaded?" lookups.
 CREATE INDEX IF NOT EXISTS idx_crowd_captured_at
   ON crowd_snapshots (captured_at);
 
 CREATE INDEX IF NOT EXISTS idx_crowd_player_captured
   ON crowd_snapshots (player_id, captured_at);
+
+CREATE INDEX IF NOT EXISTS idx_fixtures_season_gw
+  ON fixtures (season, gameweek);

@@ -6,7 +6,7 @@ scored — built live, in the open.
 
 ## Status
 
-Day 1. Crowd snapshot logger only.
+Day 2. Schema + DuckDB loader + gap checker. See `PROGRESS.md`.
 
 ## Why a cron job before a model
 
@@ -17,7 +17,10 @@ collection starts before anything else exists.
 ## Layout
 
 - `collectors/` — data collection
-- `data/` — captured snapshots (on the `data` branch)
+- `db/` — DuckDB schema
+- `loaders/` — Parquet → DuckDB
+- `scripts/` — checks and utilities
+- `data/` — captured snapshots (on the `data` branch); local DuckDB is gitignored
 
 ## Licence
 

@@ -3,4 +3,5 @@ __pycache__/
 .venv/
 .env
 data/myriad.duckdb
+data/raw/
 .DS_Store

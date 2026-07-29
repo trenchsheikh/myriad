@@ -4,41 +4,57 @@ Living notes. Updated as work happens.
 
 ---
 
-## Day 7 — Sunday 2 August
+## Day 8 — Monday 3 August
 
-**Goal:** stadium lat/lon + 2026-27 fixture list with canonical team IDs.
+**Goal:** full DuckDB load + data audit; fix anything the audit surfaces.
 
 | Step | What | State |
 |------|------|-------|
-| 1 | `ref/stadiums.csv` | Done (42 clubs, incl. historical + Coventry) |
-| 2 | `collectors/fixtures.py` | Done |
+| 0 | Due diligence on Days 1–7 | Done |
+| 1 | `scripts/full_load.py` | Done |
+| 2 | `notebooks/01_data_audit.ipynb` + `scripts/data_audit.py` | Done |
+| 3 | Fix audit findings | Done — none blocking |
 
-### Results
+### Acceptance — PASSED
 
-- **2026-27 FPL squad** includes newly promoted **Coventry** (+ Hull, Ipswich, Leeds, Sunderland)
-- Added `coventry` to `ref/teams.csv` + FPL aliases
-- **380 fixtures** loaded into `fixtures` (GW1–38, all unfinished; GW1 kicks off 2026-08-21)
-- All **20** current PL clubs have stadium coordinates
-- Stadium coords also filled for every club appearing since 2010
+| Check | Result |
+|-------|--------|
+| ≥15 seasons of results | **16** |
+| ≥10 seasons with xG | **12** (100% of 2014-15+) |
+| Unresolved team names | **0** |
+| Duplicate `match_id`s | **0** |
 
-```bash
-make fixtures
+### Audit notes (not failures)
+
+- Missing closing odds: 56% — expected; Bet365 closing columns only from ~2019-20
+- Opening odds: 100% coverage
+- Crowd logger still has real CI gaps (tracked in [issue #1](https://github.com/trenchsheikh/myrid/issues/1))
+
+### How to run (Windows)
+
+```powershell
+.\tasks.ps1 load    # full rebuild (reuses cached downloads)
+.\tasks.ps1 audit   # acceptance checks + writes notebooks/01_data_audit_report.md
 ```
 
-### Due diligence
+### Also this session
 
-- Fixtures: 0 null team_ids
-- Prior pipelines still green (resolve-teams, understat re-join)
+- Fixed `tasks.ps1` so Python logging on stderr no longer aborts PowerShell
+- Added `load` / `audit` task targets
+
+**M1 (Historical spine) complete.** Next is M2 Day 9 — Dixon-Coles baseline.
+
+---
+
+## Day 7 — Sunday 2 August
+
+Stadiums (42 clubs) + 380 FPL fixtures for 2026-27. Coventry registered.
 
 ---
 
 ## Day 6 — Saturday 1 August
 
-Understat xG for 2014-15 → 2025-26. Exact join 99.43%; ±1-day rescue → **100%** (4,560/4,560).
-
-```bash
-make understat
-```
+Understat xG join **100%** (4,560/4,560).
 
 ---
 
@@ -48,24 +64,6 @@ Canonical team IDs. 6,080 matches, 0 null team_ids.
 
 ---
 
-## Day 4 — Thursday 30 July
+## Days 1–4
 
-16 seasons of football-data results → `matches_staging`.
-
----
-
-## Day 3 — Wednesday 29 July
-
-Gap-alert workflow. [Issue #1](https://github.com/trenchsheikh/myrid/issues/1).
-
----
-
-## Day 2 — Tuesday 28 July
-
-DuckDB schema, crowd loader, gap checker.
-
----
-
-## Day 1 — Monday 27 July
-
-Crowd snapshot logger.
+Logger → DuckDB/gaps → gap-alert → football-data staging.

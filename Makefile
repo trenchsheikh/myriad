@@ -1,4 +1,4 @@
-.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat fixtures
+.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat fixtures load audit
 
 ingest:
 	uv run python -m loaders.crowd_to_duck
@@ -17,6 +17,12 @@ fixtures:
 
 check-gaps:
 	uv run python scripts/check_gaps.py
+
+load:
+	uv run python scripts/full_load.py --skip-download
+
+audit:
+	uv run python scripts/data_audit.py
 
 backtest:
 	@echo "not yet implemented (Day 11)"

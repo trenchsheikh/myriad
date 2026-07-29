@@ -17,7 +17,8 @@ scored — built live, in the open.
 
 ## Status
 
-Day 7. Stadiums + 2026-27 fixtures. See `PROGRESS.md`.
+Day 8. Data audit PASSED (M1 complete). See `PROGRESS.md`.
+
 
 ## Why a cron job before a model
 
@@ -40,11 +41,22 @@ uv run python -m loaders.crowd_to_duck
 
 # Check for capture gaps (fails if any gap > 90 minutes)
 uv run python scripts/check_gaps.py
-
-# Or use the Makefile shortcuts
-make ingest        # load crowd data
-make check-gaps    # run gap check
 ```
+
+### Task shortcuts
+
+| Task | Windows (PowerShell) | macOS / Linux |
+|------|----------------------|---------------|
+| Crowd ingest | `.\tasks.ps1 ingest` | `make ingest` |
+| Results | `.\tasks.ps1 results` | `make results` |
+| Resolve teams | `.\tasks.ps1 resolve-teams` | `make resolve-teams` |
+| Understat xG | `.\tasks.ps1 understat` | `make understat` |
+| Fixtures | `.\tasks.ps1 fixtures` | `make fixtures` |
+| Gap check | `.\tasks.ps1 check-gaps` | `make check-gaps` |
+| Full load | `.\tasks.ps1 load` | `make load` |
+| Data audit | `.\tasks.ps1 audit` | `make audit` |
+
+`make` is not installed on Windows by default — use `.\tasks.ps1` or the `uv run` commands above.
 
 ## Layout
 

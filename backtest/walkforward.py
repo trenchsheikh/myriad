@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 from backtest.leakage import LeakageError, run_all_fit_guards
-from models.dixon_coles import DEFAULT_XI, DixonColes
+from models.dixon_coles import DEFAULT_HALF_LIFE_DAYS, DEFAULT_XI, DixonColes
 from models.score_matrix import predict_match
 
 log = logging.getLogger("walkforward")
@@ -126,10 +126,14 @@ def run_walkforward(
     xi: float = DEFAULT_XI,
     max_matchdays: int | None = None,
     sha: str | None = None,
+    model_version: str = MODEL_VERSION,
+    stride: int = 1,
 ) -> pd.DataFrame:
     """Return a dataframe of predictions (not yet written to DB)."""
     sha = sha or git_sha()
     days = matchdays_in_range(matches, start, end)
+    if stride > 1:
+        days = days[::stride]
     if max_matchdays is not None:
         days = days[:max_matchdays]
 
@@ -137,11 +141,13 @@ def run_walkforward(
         raise ValueError(f"no matchdays between {start.date()} and {end.date()}")
 
     log.info(
-        "walk-forward: %d matchdays from %s to %s (xi=%.5f)",
+        "walk-forward: %d matchdays from %s to %s (xi=%.5f version=%s stride=%d)",
         len(days),
         days[0].date(),
         days[-1].date(),
         xi,
+        model_version,
+        stride,
     )
 
     rows: list[dict] = []
@@ -150,11 +156,7 @@ def run_walkforward(
 
     for i, day in enumerate(days, 1):
         # Prediction timestamp D = start of that matchday (midnight).
-        # All fixtures on this calendar day are predicted with info < midnight.
-        # More precisely: fit on asof_ts < day's first kickoff would be ideal;
-        # PRD says kickoff_utc < D. We use day-normalized midnight as D so
-        # same-day earlier kickoffs don't leak into later ones on that day
-        # via a shared fit — conservative (slightly less info than ideal).
+        # Conservative: same-day earlier kickoffs don't leak into later ones.
         as_of = pd.Timestamp(day)
 
         train = matches.loc[matches["asof_ts"] < as_of].copy()
@@ -169,7 +171,6 @@ def run_walkforward(
         # --- Leakage checklist (assertions, not comments) ---
         run_all_fit_guards(train, as_of)
 
-        # Fit uses only DC columns (explicitly drop anything unused)
         fit_cols = [
             c
             for c in [
@@ -189,13 +190,11 @@ def run_walkforward(
         run_all_fit_guards(fit_df, as_of)
 
         try:
-            # Reuse model instance so warm-start carries across matchdays
             model.fit(fit_df, as_of=None)
         except Exception:
             log.exception("fit failed on %s", as_of.date())
             raise
 
-        # Extra hard assert inside the fitted window
         if (fit_df["asof_ts"] >= as_of).any():
             raise LeakageError("post-fit leakage check failed")
 
@@ -205,12 +204,12 @@ def run_walkforward(
                 model, row.home_team_id, row.away_team_id, crowd
             )
             probs = predict_match(lam_h, lam_a, rho=model.result_.rho)
-            pid = prediction_id(row.match_id, MODEL_VARIANT, MODEL_VERSION, sha)
+            pid = prediction_id(row.match_id, MODEL_VARIANT, model_version, sha)
             rows.append(
                 {
                     "prediction_id": pid,
                     "created_at": created_at,
-                    "model_version": MODEL_VERSION,
+                    "model_version": model_version,
                     "model_variant": MODEL_VARIANT,
                     "match_id": row.match_id,
                     "p_home": probs["p_home"],
@@ -226,7 +225,7 @@ def run_walkforward(
                 }
             )
 
-        if i % 10 == 0 or i == len(days):
+        if i % 25 == 0 or i == len(days):
             log.info(
                 "  %d/%d matchdays  last=%s  preds=%d  train=%d",
                 i, len(days), as_of.date(), len(rows), len(train),
@@ -300,7 +299,12 @@ def main() -> int:
     parser.add_argument("--start", default="2024-08-01", help="YYYY-MM-DD")
     parser.add_argument("--end", default="2025-05-31", help="YYYY-MM-DD")
     parser.add_argument("--max-matchdays", type=int, default=None)
-    parser.add_argument("--xi", type=float, default=DEFAULT_XI)
+    parser.add_argument("--xi", type=float, default=None, help="decay rate (overrides --half-life)")
+    parser.add_argument("--half-life", type=float, default=DEFAULT_HALF_LIFE_DAYS,
+                        help="time-decay half-life in days (default 182.5)")
+    parser.add_argument("--stride", type=int, default=1, help="use every Nth matchday")
+    parser.add_argument("--model-version", default=None,
+                        help="stored model_version (default dc-v0.1-hl{half_life})")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -311,6 +315,10 @@ def main() -> int:
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s"
     )
+
+    xi = args.xi if args.xi is not None else (np.log(2) / args.half_life)
+    half_life = np.log(2) / xi
+    version = args.model_version or f"dc-v0.1-hl{half_life:.0f}"
 
     start = pd.Timestamp(args.start)
     end = pd.Timestamp(args.end)
@@ -324,13 +332,16 @@ def main() -> int:
             matches,
             start=start,
             end=end,
-            xi=args.xi,
+            xi=xi,
             max_matchdays=args.max_matchdays,
+            model_version=version,
+            stride=args.stride,
         )
         log.info(
-            "produced %d predictions  p_home mean=%.3f",
+            "produced %d predictions  p_home mean=%.3f  version=%s",
             len(preds),
             preds["p_home"].mean() if len(preds) else float("nan"),
+            version,
         )
 
         if args.dry_run:
@@ -340,10 +351,10 @@ def main() -> int:
 
         n = write_predictions(con, preds)
         total = con.execute(
-            "SELECT COUNT(*) FROM predictions WHERE model_variant = ?",
-            [MODEL_VARIANT],
+            "SELECT COUNT(*) FROM predictions WHERE model_variant = ? AND model_version = ?",
+            [MODEL_VARIANT, version],
         ).fetchone()[0]
-        log.info("inserted %d new rows; backtest predictions in DB: %d", n, total)
+        log.info("inserted %d new rows; version %s rows in DB: %d", n, version, total)
     except LeakageError as exc:
         log.error("LEAKAGE GUARD FIRED: %s", exc)
         return 2

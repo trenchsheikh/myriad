@@ -214,18 +214,27 @@ class DixonColes:
         x0[n_att_free + n_def + 2] = -0.05
 
         # Warm-start from previous fit when the team set is identical
-        if (
+        warm = (
             self._last_theta is not None
             and self._last_teams == teams
             and len(self._last_theta) == len(x0)
-        ):
+        )
+        if warm:
             x0 = self._last_theta.copy()
 
-        log.info(
-            "fitting Dixon-Coles: teams=%d matches=%d xi=%.5f (half-life~%.0fd)",
-            n, len(df), self.xi, np.log(2) / self.xi,
+        log.debug(
+            "fitting Dixon-Coles: teams=%d matches=%d xi=%.5f warm=%s",
+            n, len(df), self.xi, warm,
         )
-        opt = minimize(nll, x0, method="L-BFGS-B", options={"maxiter": 800, "ftol": 1e-9})
+        opt = minimize(
+            nll,
+            x0,
+            method="L-BFGS-B",
+            options={
+                "maxiter": 120 if warm else 800,
+                "ftol": 1e-7 if warm else 1e-9,
+            },
+        )
         self._last_theta = opt.x.copy()
         self._last_teams = list(teams)
 
@@ -244,8 +253,8 @@ class DixonColes:
             message=str(opt.message),
         )
         self.result_ = result
-        log.info(
-            "fit done: success=%s nll=%.2f γ=%.3f γ_empty=%.3f ρ=%.4f",
+        log.debug(
+            "fit done: success=%s nll=%.2f gamma=%.3f gamma_empty=%.3f rho=%.4f",
             result.success, result.nll, result.home_adv, result.home_adv_empty, result.rho,
         )
         return result

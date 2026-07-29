@@ -1,4 +1,4 @@
-.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat fixtures load audit fit-dc score
+.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat fixtures load audit fit-dc score tune-xi calibrate
 
 ingest:
 	uv run python -m loaders.crowd_to_duck
@@ -32,6 +32,12 @@ backtest:
 
 score:
 	uv run python scripts/score_backtest.py
+
+tune-xi:
+	uv run python scripts/tune_xi.py
+
+calibrate:
+	uv run python scripts/plot_calibration.py
 
 simulate:
 	@echo "not yet implemented (Day 20)"

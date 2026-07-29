@@ -17,7 +17,7 @@ scored — built live, in the open.
 
 ## Status
 
-Day 12. Eval metrics + benchmarks. See `PROGRESS.md`.
+Day 13. Full backtest RPS 0.201. See `PROGRESS.md`.
 
 
 ## Why a cron job before a model

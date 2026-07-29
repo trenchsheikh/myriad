@@ -53,6 +53,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Score backtest predictions.")
     parser.add_argument("--db", type=Path, default=DEFAULT_DB)
     parser.add_argument("--variant", default="backtest")
+    parser.add_argument("--model-version", default=None,
+                        help="optional filter on predictions.model_version")
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
     parser.add_argument("--n-boot", type=int, default=1000)
     args = parser.parse_args()
@@ -63,7 +65,28 @@ def main() -> int:
 
     con = duckdb.connect(str(args.db), read_only=True)
     try:
-        df = load_joined(con, variant=args.variant)
+        if args.model_version:
+            df = con.execute(
+                """
+                SELECT
+                  p.prediction_id, p.match_id, p.model_version, p.model_variant,
+                  p.p_home, p.p_draw, p.p_away, p.p_btts, p.p_over25,
+                  p.git_sha, p.created_at,
+                  m.season, m.match_date,
+                  m.home_team_id, m.away_team_id,
+                  m.home_goals, m.away_goals,
+                  m.odds_open_h, m.odds_open_d, m.odds_open_a,
+                  m.odds_close_h, m.odds_close_d, m.odds_close_a
+                FROM predictions p
+                JOIN matches m ON m.match_id = p.match_id
+                WHERE p.model_variant = ? AND p.model_version = ?
+                  AND m.home_goals IS NOT NULL
+                ORDER BY m.match_date
+                """,
+                [args.variant, args.model_version],
+            ).fetchdf()
+        else:
+            df = load_joined(con, variant=args.variant)
     finally:
         con.close()
 

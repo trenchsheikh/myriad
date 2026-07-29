@@ -4,58 +4,59 @@ Living notes. Updated as work happens.
 
 ---
 
-## Day 12 — Friday 7 August
+## Day 13 — Saturday 8 August
 
-**Goal:** evaluation metrics + benchmarks.
+**Goal:** full walk-forward, tune ξ on early seasons, calibration plot.
 
 | Step | What | State |
 |------|------|-------|
-| 1 | `eval/metrics.py` (RPS, log loss, Brier, calibration, bootstrap) | Done |
-| 2 | `eval/benchmarks.py` (de-vig + naive baselines) | Done |
-| 3 | `scripts/score_backtest.py` smoke | Done |
+| 1 | ξ grid search (early seasons only) | Done — best **182.5d** |
+| 2 | Full backtest 2015-16 → 2025-26 | Done — **4,180** preds |
+| 3 | Calibration plot + feature_log | Done |
 
-### Smoke scores (34 backtest preds, Aug 2024 only — not meaningful yet)
+### ξ tune (2015-08 → 2019-05, stride 2)
 
-| Source | RPS |
-|--------|----:|
-| Model (`dc-v0.1`) | 0.163 |
-| Closing de-vig | 0.165 |
-| Opening de-vig | 0.160 |
-| Base rates (in-sample) | 0.246 |
-| Home-always | 0.471 |
+| half-life | RPS |
+|----------:|----:|
+| **182.5** | **0.1922** ← best |
+| 365 | 0.1924 |
+| 90 | 0.1942 |
+| 60 | 0.1971 |
 
-Tiny sample — Day 13 full backtest is the real test. Ballpark for a competent DC is RPS ~0.19–0.21 over many seasons.
+### Full backtest results (`dc-v0.1-hl182`)
+
+| Source | RPS | n |
+|--------|----:|--:|
+| Model | **0.2007** | 4180 |
+| Closing de-vig | 0.1968 | 2660 |
+| Opening de-vig | 0.1955 | 4180 |
+| Base rates | 0.2322 | 4180 |
+
+Bootstrap RPS 95% CI: **[0.1950, 0.2064]** (11 seasons).
+
+In the PRD ballpark (0.19–0.21). Slightly behind closing line — expected; if we beat it across ten seasons we'd hunt leakage.
 
 ```powershell
-.\tasks.ps1 score
+.\tasks.ps1 tune-xi
+.\tasks.ps1 full-backtest
+.\tasks.ps1 calibrate
+uv run python scripts/score_backtest.py --model-version dc-v0.1-hl182 --report docs/eval_full.md
 ```
 
-Shin de-vig noted as a later refinement (proportional used for now).
+Artefacts: `docs/xi_tune.md`, `docs/eval_full.md`, `docs/calibration.png`, `docs/feature_log.md`.
 
-### Schedule / diligence
+### Prior commit note
 
-Day 8 audit still **PASSED**. Ahead of PRD calendar (Day 12 = 7 Aug).
-
----
-
-## Day 11 — Thursday 6 August
-
-Walk-forward harness + leakage assertions. Smoke: 5 matchdays.
+Nothing pending before Day 13 — import-path fix already pushed; Day 8 audit still PASSED.
 
 ---
 
-## Days 9–10
+## Day 12
 
-Dixon-Coles + score matrix.
-
----
-
-## Day 8
-
-Data audit PASSED. M1 complete.
+RPS metrics + de-vig benchmarks.
 
 ---
 
-## Days 1–7
+## Days 1–11
 
-Logger → DuckDB → results → teams → xG → stadiums/fixtures.
+Logger → data spine → Dixon-Coles → walk-forward harness.

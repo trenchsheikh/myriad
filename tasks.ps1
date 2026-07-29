@@ -53,6 +53,21 @@ switch ($Task.ToLower()) {
     "score" {
         Invoke-Uv run python scripts/score_backtest.py
     }
+    "tune-xi" {
+        Invoke-Uv run python scripts/tune_xi.py
+    }
+    "full-backtest" {
+        # Requires docs/xi_best.txt from tune-xi
+        $hl = "182.5"
+        if (Test-Path "$PSScriptRoot\docs\xi_best.txt") {
+            $hl = (Get-Content "$PSScriptRoot\docs\xi_best.txt" -Raw).Trim()
+        }
+        Write-Host "full backtest half-life=$hl"
+        Invoke-Uv run python -m backtest.walkforward --start 2015-08-01 --end 2026-05-31 --half-life $hl
+    }
+    "calibrate" {
+        Invoke-Uv run python scripts/plot_calibration.py
+    }
     "simulate" {
         Write-Host "not yet implemented (Day 20)"
     }
@@ -74,6 +89,9 @@ Myriad tasks (Windows):
   .\tasks.ps1 fit-dc        Fit Dixon-Coles baseline (Day 9)
   .\tasks.ps1 backtest      Walk-forward smoke (5 matchdays)
   .\tasks.ps1 score         Score predictions vs results + benchmarks
+  .\tasks.ps1 tune-xi       Grid-search half-life on early seasons
+  .\tasks.ps1 full-backtest Full walk-forward 2015-26 with best ξ
+  .\tasks.ps1 calibrate     Write docs/calibration.png
 
 Or call uv directly, e.g.:
   uv run python -m collectors.understat

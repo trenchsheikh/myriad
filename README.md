@@ -17,7 +17,7 @@ scored — built live, in the open.
 
 ## Status
 
-Day 8. Data audit PASSED (M1 complete). See `PROGRESS.md`.
+Day 10. Dixon-Coles + score matrix. See `PROGRESS.md`.
 
 
 ## Why a cron job before a model

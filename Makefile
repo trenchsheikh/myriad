@@ -1,4 +1,4 @@
-.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat fixtures load audit
+.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat fixtures load audit fit-dc
 
 ingest:
 	uv run python -m loaders.crowd_to_duck
@@ -23,6 +23,9 @@ load:
 
 audit:
 	uv run python scripts/data_audit.py
+
+fit-dc:
+	uv run python scripts/fit_dixon_coles.py
 
 backtest:
 	@echo "not yet implemented (Day 11)"

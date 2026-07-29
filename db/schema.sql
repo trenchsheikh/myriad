@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS matches (
   odds_open_a   DOUBLE,
   odds_close_h  DOUBLE,
   odds_close_d  DOUBLE,
-  odds_close_a  DOUBLE
+  odds_close_a  DOUBLE,
+  crowd_present BOOLEAN   -- False for COVID empty-stadium matches
 );
 
 -- Raw football-data.co.uk rows before team-name normalisation (Day 5).

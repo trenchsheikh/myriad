@@ -4,66 +4,58 @@ Living notes. Updated as work happens.
 
 ---
 
-## Day 8 — Monday 3 August
+## Day 10 — Wednesday 5 August
 
-**Goal:** full DuckDB load + data audit; fix anything the audit surfaces.
+**Goal:** score matrix → 1X2 / BTTS / Over 2.5 probabilities.
 
 | Step | What | State |
 |------|------|-------|
-| 0 | Due diligence on Days 1–7 | Done |
-| 1 | `scripts/full_load.py` | Done |
-| 2 | `notebooks/01_data_audit.ipynb` + `scripts/data_audit.py` | Done |
-| 3 | Fix audit findings | Done — none blocking |
+| 1 | `models/score_matrix.py` | Done |
+| 2 | Assert 1X2 sums to 1 within 1e-9 | Done |
 
-### Acceptance — PASSED
+Sample (fitted model): Liverpool vs Man United → p_home≈0.45, p_draw≈0.25, p_away≈0.31.
 
-| Check | Result |
-|-------|--------|
-| ≥15 seasons of results | **16** |
-| ≥10 seasons with xG | **12** (100% of 2014-15+) |
-| Unresolved team names | **0** |
-| Duplicate `match_id`s | **0** |
+---
 
-### Audit notes (not failures)
+## Day 9 — Tuesday 4 August
 
-- Missing closing odds: 56% — expected; Bet365 closing columns only from ~2019-20
-- Opening odds: 100% coverage
-- Crowd logger still has real CI gaps (tracked in [issue #1](https://github.com/trenchsheikh/myrid/issues/1))
+**Goal:** Dixon-Coles baseline with empty-stadium home-advantage correction.
 
-### How to run (Windows)
+| Step | What | State |
+|------|------|-------|
+| 1 | `crowd_present` on matches | Done (False for 2020-06-17 → 2021-05-16) |
+| 2 | `models/dixon_coles.py` | Done (vectorised NLL, L-BFGS-B) |
+| 3 | Smoke-fit | Done |
+
+### Fit sanity check (2014-15 → 2025-26, 4,560 matches)
+
+| Param | Value | Notes |
+|-------|-------|-------|
+| γ (crowd) | **1.203** | normal home advantage |
+| γ_empty | **1.029** | collapsed — COVID correction working |
+| ρ | -0.119 | low-score dependence |
+| ξ | ln2/182.5 | ~6-month half-life |
+
+Top strengths: Arsenal, Man City, Liverpool. Empty-stadium γ near 1.0 confirms the PRD warning.
 
 ```powershell
-.\tasks.ps1 load    # full rebuild (reuses cached downloads)
-.\tasks.ps1 audit   # acceptance checks + writes notebooks/01_data_audit_report.md
+.\tasks.ps1 fit-dc
 ```
 
-### Also this session
+---
 
-- Fixed `tasks.ps1` so Python logging on stderr no longer aborts PowerShell
-- Added `load` / `audit` task targets
+## Day 8 — Monday 3 August
 
-**M1 (Historical spine) complete.** Next is M2 Day 9 — Dixon-Coles baseline.
+Data audit **PASSED**. M1 complete.
+16 seasons, 12 with xG (100%), 0 null teams, 0 duplicate match_ids.
+
+```powershell
+.\tasks.ps1 load
+.\tasks.ps1 audit
+```
 
 ---
 
-## Day 7 — Sunday 2 August
+## Days 1–7
 
-Stadiums (42 clubs) + 380 FPL fixtures for 2026-27. Coventry registered.
-
----
-
-## Day 6 — Saturday 1 August
-
-Understat xG join **100%** (4,560/4,560).
-
----
-
-## Day 5 — Friday 31 July
-
-Canonical team IDs. 6,080 matches, 0 null team_ids.
-
----
-
-## Days 1–4
-
-Logger → DuckDB/gaps → gap-alert → football-data staging.
+Logger → DuckDB/gaps → gap-alert → results → team IDs → Understat xG → stadiums/fixtures.

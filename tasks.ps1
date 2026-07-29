@@ -41,6 +41,9 @@ switch ($Task.ToLower()) {
     "audit" {
         Invoke-Uv run python scripts/data_audit.py
     }
+    "fit-dc" {
+        Invoke-Uv run python scripts/fit_dixon_coles.py
+    }
     "backtest" {
         Write-Host "not yet implemented (Day 11)"
     }
@@ -62,6 +65,7 @@ Myriad tasks (Windows):
   .\tasks.ps1 check-gaps     Assert crowd capture gaps <= 90 min
   .\tasks.ps1 load           Full rebuild of DuckDB (reuse cached downloads)
   .\tasks.ps1 audit         Run Day 8 data audit checks
+  .\tasks.ps1 fit-dc        Fit Dixon-Coles baseline (Day 9)
 
 Or call uv directly, e.g.:
   uv run python -m collectors.understat

@@ -14,6 +14,8 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
+from models.dixon_coles import crowd_present_for_date
+
 log = logging.getLogger("resolve_team")
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -146,6 +148,9 @@ def promote_staging_to_matches(
             "odds_close_h": staging["odds_close_h"],
             "odds_close_d": staging["odds_close_d"],
             "odds_close_a": staging["odds_close_a"],
+            "crowd_present": [
+                crowd_present_for_date(d) for d in staging["match_date"]
+            ],
         }
     )
 
@@ -162,8 +167,29 @@ def promote_staging_to_matches(
         raise RuntimeError(f"{int(empty.sum())} empty team_id values after resolve")
 
     con.execute("DELETE FROM matches")
+    # Existing DBs created before Day 9 may lack crowd_present.
+    con.execute("ALTER TABLE matches ADD COLUMN IF NOT EXISTS crowd_present BOOLEAN")
     con.register("_matches", matches)
-    con.execute("INSERT INTO matches SELECT * FROM _matches")
+    con.execute(
+        """
+        INSERT INTO matches (
+          match_id, season, match_date, kickoff_utc,
+          home_team_id, away_team_id, home_goals, away_goals,
+          home_xg, away_xg, referee,
+          odds_open_h, odds_open_d, odds_open_a,
+          odds_close_h, odds_close_d, odds_close_a,
+          crowd_present
+        )
+        SELECT
+          match_id, season, match_date, kickoff_utc,
+          home_team_id, away_team_id, home_goals, away_goals,
+          home_xg, away_xg, referee,
+          odds_open_h, odds_open_d, odds_open_a,
+          odds_close_h, odds_close_d, odds_close_a,
+          crowd_present
+        FROM _matches
+        """
+    )
     con.unregister("_matches")
     return len(matches)
 

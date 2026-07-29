@@ -10,4 +10,5 @@ dependencies = [
     "duckdb>=1.0",
     "scipy>=1.13",
     "numpy>=1.26",
+    "soccerdata>=1.9.1",
 ]

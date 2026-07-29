@@ -1,4 +1,4 @@
-.PHONY: ingest backtest simulate publish check-gaps results resolve-teams
+.PHONY: ingest backtest simulate publish check-gaps results resolve-teams understat
 
 ingest:
 	uv run python -m loaders.crowd_to_duck
@@ -8,6 +8,9 @@ results:
 
 resolve-teams:
 	uv run python -m loaders.resolve_team
+
+understat:
+	uv run python -m collectors.understat
 
 check-gaps:
 	uv run python scripts/check_gaps.py

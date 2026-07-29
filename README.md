@@ -17,7 +17,7 @@ scored — built live, in the open.
 
 ## Status
 
-Day 5. Team name normalisation. See `PROGRESS.md`.
+Day 6. Understat xG joined (100%). See `PROGRESS.md`.
 
 ## Why a cron job before a model
 

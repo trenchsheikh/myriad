@@ -1,0 +1,162 @@
+alias,source,team_id
+Arsenal,football-data,arsenal
+Aston Villa,football-data,aston_villa
+Birmingham,football-data,birmingham
+Blackburn,football-data,blackburn
+Blackpool,football-data,blackpool
+Bolton,football-data,bolton
+Bournemouth,football-data,bournemouth
+Brentford,football-data,brentford
+Brighton,football-data,brighton
+Burnley,football-data,burnley
+Cardiff,football-data,cardiff
+Chelsea,football-data,chelsea
+Crystal Palace,football-data,crystal_palace
+Everton,football-data,everton
+Fulham,football-data,fulham
+Huddersfield,football-data,huddersfield
+Hull,football-data,hull
+Ipswich,football-data,ipswich
+Leeds,football-data,leeds
+Leicester,football-data,leicester
+Liverpool,football-data,liverpool
+Luton,football-data,luton
+Man City,football-data,man_city
+Man United,football-data,man_united
+Middlesbrough,football-data,middlesbrough
+Newcastle,football-data,newcastle
+Norwich,football-data,norwich
+Nott'm Forest,football-data,nottingham_forest
+QPR,football-data,qpr
+Reading,football-data,reading
+Sheffield United,football-data,sheffield_united
+Southampton,football-data,southampton
+Stoke,football-data,stoke
+Sunderland,football-data,sunderland
+Swansea,football-data,swansea
+Tottenham,football-data,tottenham
+Watford,football-data,watford
+West Brom,football-data,west_brom
+West Ham,football-data,west_ham
+Wigan,football-data,wigan
+Wolves,football-data,wolves
+Arsenal,understat,arsenal
+Aston Villa,understat,aston_villa
+Birmingham,understat,birmingham
+Blackburn,understat,blackburn
+Blackpool,understat,blackpool
+Bolton,understat,bolton
+Bournemouth,understat,bournemouth
+Brentford,understat,brentford
+Brighton,understat,brighton
+Burnley,understat,burnley
+Cardiff,understat,cardiff
+Chelsea,understat,chelsea
+Crystal Palace,understat,crystal_palace
+Everton,understat,everton
+Fulham,understat,fulham
+Huddersfield,understat,huddersfield
+Hull,understat,hull
+Ipswich,understat,ipswich
+Leeds,understat,leeds
+Leicester,understat,leicester
+Liverpool,understat,liverpool
+Luton,understat,luton
+Manchester City,understat,man_city
+Manchester United,understat,man_united
+Middlesbrough,understat,middlesbrough
+Newcastle United,understat,newcastle
+Norwich,understat,norwich
+Nottingham Forest,understat,nottingham_forest
+Queens Park Rangers,understat,qpr
+Reading,understat,reading
+Sheffield United,understat,sheffield_united
+Southampton,understat,southampton
+Stoke,understat,stoke
+Sunderland,understat,sunderland
+Swansea,understat,swansea
+Tottenham,understat,tottenham
+Watford,understat,watford
+West Bromwich Albion,understat,west_brom
+West Ham,understat,west_ham
+Wigan,understat,wigan
+Wolverhampton Wanderers,understat,wolves
+ARS,fpl,arsenal
+AVL,fpl,aston_villa
+BIR,fpl,birmingham
+BLB,fpl,blackburn
+BLP,fpl,blackpool
+BOL,fpl,bolton
+BOU,fpl,bournemouth
+BRE,fpl,brentford
+BHA,fpl,brighton
+BUR,fpl,burnley
+CAR,fpl,cardiff
+CHE,fpl,chelsea
+CRY,fpl,crystal_palace
+EVE,fpl,everton
+FUL,fpl,fulham
+HUD,fpl,huddersfield
+HUL,fpl,hull
+IPS,fpl,ipswich
+LEE,fpl,leeds
+LEI,fpl,leicester
+LIV,fpl,liverpool
+LUT,fpl,luton
+MCI,fpl,man_city
+MUN,fpl,man_united
+MID,fpl,middlesbrough
+NEW,fpl,newcastle
+NOR,fpl,norwich
+NFO,fpl,nottingham_forest
+QPR,fpl,qpr
+RDG,fpl,reading
+SHU,fpl,sheffield_united
+SOU,fpl,southampton
+STK,fpl,stoke
+SUN,fpl,sunderland
+SWA,fpl,swansea
+TOT,fpl,tottenham
+WAT,fpl,watford
+WBA,fpl,west_brom
+WHU,fpl,west_ham
+WIG,fpl,wigan
+WOL,fpl,wolves
+Man Utd,fbref,man_united
+Manchester Utd,fbref,man_united
+Manchester United,fbref,man_united
+Man City,fbref,man_city
+Manchester City,fbref,man_city
+Nott'ham Forest,fbref,nottingham_forest
+Nottingham Forest,fbref,nottingham_forest
+Newcastle Utd,fbref,newcastle
+Sheffield Utd,fbref,sheffield_united
+Wolves,fbref,wolves
+Brighton,fbref,brighton
+West Brom,fbref,west_brom
+West Ham,fbref,west_ham
+Spurs,common,tottenham
+Tottenham Hotspur,common,tottenham
+AFC Bournemouth,common,bournemouth
+Wolverhampton Wanderers,common,wolves
+Brighton and Hove Albion,common,brighton
+Brighton & Hove Albion,common,brighton
+Queens Park Rangers,common,qpr
+West Bromwich Albion,common,west_brom
+West Ham United,common,west_ham
+Leicester City,common,leicester
+Norwich City,common,norwich
+Stoke City,common,stoke
+Hull City,common,hull
+Cardiff City,common,cardiff
+Swansea City,common,swansea
+Birmingham City,common,birmingham
+Blackburn Rovers,common,blackburn
+Bolton Wanderers,common,bolton
+Huddersfield Town,common,huddersfield
+Ipswich Town,common,ipswich
+Luton Town,common,luton
+Wigan Athletic,common,wigan
+Leeds United,common,leeds
+Newcastle United,common,newcastle
+Sheffield United,common,sheffield_united

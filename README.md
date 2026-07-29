@@ -17,7 +17,7 @@ scored — built live, in the open.
 
 ## Status
 
-Day 4. Historical results loaded into staging. See `PROGRESS.md`.
+Day 5. Team name normalisation. See `PROGRESS.md`.
 
 ## Why a cron job before a model
 

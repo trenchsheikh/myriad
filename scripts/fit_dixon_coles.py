@@ -7,6 +7,10 @@ import logging
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import duckdb
 import pandas as pd
 
@@ -14,7 +18,6 @@ from models.dixon_coles import DixonColes
 
 log = logging.getLogger("fit_dc")
 
-ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB = ROOT / "data" / "myriad.duckdb"
 
 

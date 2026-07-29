@@ -7,6 +7,11 @@ import logging
 import sys
 from pathlib import Path
 
+# Running as `python scripts/foo.py` puts scripts/ on sys.path, not the repo root.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import duckdb
 import pandas as pd
 
@@ -15,7 +20,6 @@ from eval.metrics import bootstrap_season_cis, score_predictions
 
 log = logging.getLogger("score_backtest")
 
-ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB = ROOT / "data" / "myriad.duckdb"
 DEFAULT_REPORT = ROOT / "docs" / "eval_smoke.md"
 

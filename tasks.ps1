@@ -12,6 +12,8 @@ $ErrorActionPreference = "Continue"
 
 function Invoke-Uv {
     param([Parameter(ValueFromRemainingArguments = $true)][string[]]$UvArgs)
+    # Ensure repo-root imports (eval/, models/, ...) resolve when running scripts/*.py
+    $env:PYTHONPATH = (Resolve-Path $PSScriptRoot).Path
     & uv @UvArgs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }

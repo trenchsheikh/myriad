@@ -24,6 +24,24 @@ CREATE TABLE IF NOT EXISTS matches (
   odds_close_a  DOUBLE
 );
 
+-- Raw football-data.co.uk rows before team-name normalisation (Day 5).
+CREATE TABLE IF NOT EXISTS matches_staging (
+  season          VARCHAR,
+  season_code     VARCHAR,
+  match_date      DATE,
+  home_team_raw   VARCHAR,
+  away_team_raw   VARCHAR,
+  home_goals      INTEGER,
+  away_goals      INTEGER,
+  referee         VARCHAR,
+  odds_open_h     DOUBLE,
+  odds_open_d     DOUBLE,
+  odds_open_a     DOUBLE,
+  odds_close_h    DOUBLE,
+  odds_close_d    DOUBLE,
+  odds_close_a    DOUBLE
+);
+
 -- APPEND ONLY. One row per player per capture hour.
 CREATE TABLE IF NOT EXISTS crowd_snapshots (
   captured_at        TIMESTAMP,

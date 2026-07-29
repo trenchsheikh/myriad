@@ -4,6 +4,33 @@ Living notes. Updated as work happens.
 
 ---
 
+## Day 4 — Thursday 30 July
+
+**Goal:** download historical Premier League results + odds into a staging table.
+
+| Step | What | State |
+|------|------|-------|
+| 1 | `collectors/results.py` | Done |
+| 2 | Parse Date, teams, goals, referee, odds | Done |
+| 3 | Load raw into DuckDB `matches_staging` | Done |
+
+### Results
+
+- Downloaded **16 seasons** (2010-11 → 2025-26) from football-data.co.uk
+- **6,080 matches** in `matches_staging` (380 per season)
+- **41** distinct raw team names (normalisation is Day 5)
+- Closing odds present on ~44% of rows (older seasons only have opening odds — expected)
+
+### How to run
+
+```bash
+make results
+# or: uv run python -m collectors.results
+# reuse CSVs: uv run python -m collectors.results --skip-download
+```
+
+---
+
 ## Day 3 — Wednesday 29 July
 
 **Goal:** alert on missing snapshots, project scaffolding.
@@ -14,17 +41,10 @@ Living notes. Updated as work happens.
 | 2 | Expand `README.md` | Done |
 | 3 | `Makefile` stubs | Done |
 
-### What we built
+### Acceptance verified
 
-| File | Job |
-|------|-----|
-| `.github/workflows/gap-alert.yml` | Runs `check_gaps.py` every 6 hours. If gaps > 90 min, opens a GitHub issue (or comments on an existing one). |
-| `README.md` | Now explains what Myriad is, how to run it, project layout. |
-| `Makefile` | `make ingest`, `make check-gaps` work now; `backtest`, `simulate`, `publish` are stubs for later. |
-
-### Acceptance
-
-PRD says: "deliberately break the logger, confirm an issue is opened, fix it." This can be tested by pushing to `main` and triggering the workflow manually via `workflow_dispatch`. The gap-alert will fire because there are already 12 real gaps in the captured data.
+Triggered `gap-alert` via `workflow_dispatch`. It found 13 gaps and opened
+[issue #1](https://github.com/trenchsheikh/myrid/issues/1) — Crowd snapshot gap detected.
 
 ---
 

@@ -1,0 +1,114 @@
+name: gap-alert
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Fetch crowd data
+        run: |
+          git fetch origin data --depth=1
+          git checkout origin/data -- data/raw/crowd
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install --quiet duckdb pandas pyarrow
+
+      - name: Run gap check (Parquet-only, no DB needed)
+        id: gaps
+        shell: bash
+        run: |
+          set +e
+          set -o pipefail
+          python scripts/check_gaps.py --parquet-only 2>&1 | tee gap_output.txt
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit $code
+        continue-on-error: true
+
+      - name: Ensure gap-alert label exists
+        if: steps.gaps.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.issues.getLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'gap-alert',
+              });
+            } catch (e) {
+              if (e.status === 404) {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: 'gap-alert',
+                  color: 'd73a4a',
+                  description: 'Crowd snapshot capture gap > 90 minutes',
+                });
+              } else {
+                throw e;
+              }
+            }
+
+      - name: Open issue on failure
+        if: steps.gaps.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('gap_output.txt', 'utf8');
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'gap-alert',
+              per_page: 1,
+            });
+
+            if (existing.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body: `Gap check still failing.\n\n\`\`\`\n${output}\n\`\`\``,
+              });
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Crowd snapshot gap detected',
+              labels: ['gap-alert'],
+              body: [
+                'The crowd snapshot log has gaps exceeding 90 minutes.',
+                'Every missed hour is permanently unrecoverable.',
+                '',
+                '```',
+                output,
+                '```',
+                '',
+                'Investigate GitHub Actions run history and consider the VPS fallback.',
+              ].join('\n'),
+            });

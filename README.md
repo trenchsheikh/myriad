@@ -34,21 +34,33 @@ edited, re-fit, or quietly withdrawn. The scoreboard includes the misses.
 ## Research context
 
 Myriad is a research project, and its methodology is deliberately modelled on
-**Google DeepMind's TacticAI** (Wang et al., *Nature Communications*, 2024) —
-the AI assistant for football tactics built with Liverpool FC. TacticAI is the
-clearest recent demonstration that football modelling can be done as *science*
-rather than as punditry: a well-posed prediction task, a model whose structure
-encodes something true about the sport, and — critically — evaluation against
-expert practitioners rather than against a baseline the authors picked because
-it was easy to beat.
+**Google DeepMind's TacticAI** ([blog][tacticai-blog] · Wang et al.,
+*Nature Communications*, March 2024) — the AI assistant for football tactics
+built with Liverpool FC.
 
-Three things are borrowed directly from how that work is framed:
+TacticAI narrows all of football to corner kicks and asks three questions of
+them: **prediction** ("for a given corner kick tactical setup, what will
+happen?"), **retrieval** ("once a setup has been played, can we understand what
+happened?"), and **generation** ("how can we adjust the tactics to make a
+particular outcome happen?"). Each player is a node in a graph, and the network
+is a variant of a Group Equivariant Convolutional Network that generates all
+four reflections of the pitch and forces identical predictions across them —
+which "reduces the search space of possible functions our neural network can
+represent to ones that respect the reflection symmetry — and yields more
+generalizable models, with less training data." Liverpool FC experts, blind to
+which corners were real and which were generated, favoured TacticAI's
+suggestions over the original setups **90% of the time**.
+
+It is the clearest recent demonstration that football modelling can be done as
+*science* rather than as punditry. Three things are borrowed from how that work
+is framed:
 
 | TacticAI | How Myriad applies it |
 |----------|-----------------------|
-| One sharply-posed prediction task (corner-kick receiver, shot threat) | One task: the 1X2 outcome distribution for a scheduled fixture, and the season table it implies |
-| Inductive bias matched to the domain — group-equivariant GNNs, because a corner is invariant to reflection and to player relabelling | Inductive bias matched to the domain — Dixon-Coles bivariate Poisson, because goals are low-count, low scorelines are correlated, and team strength drifts over time |
-| Benchmarked against expert practitioners, not against a weak internal baseline | Benchmarked against de-vigged bookmaker odds — the strongest publicly available forecaster of match outcomes |
+| A narrow, sharply-posed question — corners only, ~10 per match, rather than "model football" | One question: the 1X2 outcome distribution for a scheduled fixture, and the season table it implies |
+| Inductive bias matched to the domain — group equivariance, because a corner is invariant to reflection of the pitch and to relabelling of players | Inductive bias matched to the domain — Dixon-Coles bivariate Poisson, because goals are low-count, low scorelines are correlated, and team strength drifts over time |
+| Structure chosen partly *because data is scarce* — symmetry buys generalisation from ~10 corners a match | Same pressure, same response — 4,180 matches is not much, so the model stays at ~2n+3 parameters with time decay rather than reaching for capacity |
+| Evaluated blind against expert practitioners, not against a weak internal baseline | Evaluated against de-vigged bookmaker odds — the strongest publicly available forecaster of match outcomes |
 
 That last row is the one that matters most. It is trivially easy to build a
 football model that beats "always predict the home win" and present that as a
@@ -57,15 +69,19 @@ line on every one of 4,180 held-out matches, and the model is currently
 **behind** that line. The number is published anyway — see
 [Current results](#current-results).
 
+[tacticai-blog]: https://deepmind.google/blog/tacticai-ai-assistant-for-football-tactics/
+
 ### What this project is *not*
 
 Stated explicitly, because the comparison could otherwise mislead:
 
 - **This is not a reimplementation of TacticAI.** Different problem, different
   data, different model class.
-- **There is no player tracking data here.** TacticAI operates on frame-level
-  positional data for all 22 players. Myriad works from match results, xG,
-  fixtures, and a public crowd signal.
+- **There is no player tracking data here.** TacticAI represents every player
+  as a graph node with position, velocity and height. Myriad works from match
+  results, xG, fixtures, and a public crowd signal — no positional data at all.
+- **There is no retrieval or generation task here.** Myriad does prediction
+  only. It cannot tell you *why* a result happened or how to change it.
 - **There is no graph neural network here — yet.** The current model is a
   hand-specified statistical model with roughly `2n + 3` parameters, chosen
   because it is the correct baseline to beat before any learned representation
@@ -326,7 +342,8 @@ Running notes: [`PROGRESS.md`](PROGRESS.md) · Full spec: [`prd.md`](prd.md)
 - Wang, Z., Veličković, P., Hennes, D. *et al.* (2024). **TacticAI: an AI
   assistant for football tactics.** *Nature Communications* 15, 1906. Google
   DeepMind & Liverpool FC.
-  <https://www.nature.com/articles/s41467-024-45965-x>
+  - Announcement: <https://deepmind.google/blog/tacticai-ai-assistant-for-football-tactics/>
+  - Paper: <https://www.nature.com/articles/s41467-024-45965-x>
 - Dixon, M. J. & Coles, S. G. (1997). **Modelling Association Football Scores
   and Inefficiencies in the Football Betting Market.** *Journal of the Royal
   Statistical Society: Series C*, 46(2), 265–280.

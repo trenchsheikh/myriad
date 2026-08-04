@@ -15,6 +15,21 @@ Rates
 λ_away = exp(α_away + β_home)
 
 Identifiability: sum(α) = 0 enforced by reconstructing the last attack param.
+
+Design note — why this shape of model
+-------------------------------------
+Inspired by the framing in DeepMind's TacticAI (Wang et al., Nature
+Communications 2024): the model's structure should encode something true about
+football, not just be a flexible function fit to the data. TacticAI does this
+with group-equivariant GNNs, because a corner kick is invariant to reflection
+and to player relabelling. Here the same instinct produces a much smaller
+model: goals are low-count (Poisson), low scorelines are correlated in a way
+independent Poissons get wrong (τ), home advantage is real and changed when
+stadiums emptied (γ / γ_e), and team strength drifts (ξ).
+
+That is ~2n+3 parameters. It is the baseline any learned representation has to
+beat on held-out seasons before it earns its complexity — see
+docs/feature_log.md for the decision rule.
 """
 
 from __future__ import annotations

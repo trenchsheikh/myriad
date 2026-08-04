@@ -2,6 +2,20 @@
 
 - De-vig closing (or opening) odds via proportional normalisation
 - Naive baselines: empirical base rates, home-always
+
+Why the odds benchmark is the one that counts
+---------------------------------------------
+TacticAI (Wang et al., Nature Communications 2024) was evaluated against expert
+football practitioners rather than against a convenient internal baseline. The
+equivalent expert here is the market: de-vigged bookmaker prices are the
+strongest publicly available forecaster of match outcomes.
+
+The naive baselines below (base rates, home-always) are diagnostics, not
+achievements — beating them means nothing. The de-vig lines are the bar, and
+the current model sits behind them. That is reported as-is in docs/eval_full.md.
+
+Note that closing odds are BENCHMARK-ONLY; backtest.leakage hard-blocks the
+column names from ever reaching a feature matrix.
 """
 
 from __future__ import annotations
